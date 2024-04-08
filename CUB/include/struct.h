@@ -6,7 +6,7 @@
 /*   By: mapierre <mapierre@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/20 02:05:10 by mapierre          #+#    #+#             */
-/*   Updated: 2024/04/06 14:40:44 by mapierre         ###   ########.fr       */
+/*   Updated: 2024/04/08 17:22:12 by mapierre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,17 @@ typedef struct s_config
 	t_map	*map_data;
 
 }			t_config;
+
+typedef struct s_texture
+{
+	void	*img;
+	char	*addr;
+	int		width;
+	int		height;
+	int		bpp;
+	int		line_length;
+	int		endian;
+}			t_texture;
 
 typedef struct t_mlx
 {
@@ -107,6 +118,7 @@ typedef struct s_data
 	void		*win;
 	t_config	*config;
 	t_raycast	raycast_var;
+	t_texture	textures_info[4];
 }				t_data;
 
 #endif

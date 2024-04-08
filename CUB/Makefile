@@ -37,6 +37,8 @@ SRCS		:= 	\
 			raycast/keys.c\
 			raycast/image.c\
 			raycast/minimap.c\
+			raycast/init_textures.c\
+			raycast/raycast_main.c\
 			
 SRCS		:= $(SRCS:%=$(SRC_DIR)/%)
 OBJS		:= $(SRCS:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)

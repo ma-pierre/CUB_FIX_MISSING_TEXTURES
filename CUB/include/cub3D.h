@@ -6,7 +6,7 @@
 /*   By: mapierre <mapierre@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 15:35:51 by mapierre          #+#    #+#             */
-/*   Updated: 2024/04/06 19:44:05 by mapierre         ###   ########.fr       */
+/*   Updated: 2024/04/08 19:59:38 by mapierre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,13 +141,20 @@ int		key_release(int keycode, t_data *data);
 int		handle_keypress(t_data *data);
 //RAYCASTING
 void	main_raycast(t_data *data, t_image win_img);
-void	draw_wall(t_image image, int x, int y1, int y2, int color);
 void	raycast_init_var(t_data *data, int x);
 void	raycast_init_raydir(t_data *data);
 int		raycast_dda(t_data *data);
 //
 int		do_frame(t_data *data);
 int		clean_game(t_data *data);
+//////////RAYCAST MAIN/////////////////
+void    init_raycast_main(t_data *data);
+void    init_raycast_all(t_data *data);
+t_texture    *define_texture(t_data *d, int side);
+/////////////TEXTURES////////////////
+void    init_texture(t_data *data);
+void	draw_fc(t_image image, int x, int y1, int y2, int color);
+void	draw_wall(t_image image, int x, int y1, int y2, t_texture *tex, int texX);
 ///img
 t_image	image_new(void *mlx, size_t w, size_t h);
 void	image_put_px(t_image img, int x, int y, int color);

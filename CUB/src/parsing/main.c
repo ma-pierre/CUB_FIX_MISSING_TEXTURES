@@ -6,7 +6,7 @@
 /*   By: mapierre <mapierre@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/02 23:45:06 by eghaffar          #+#    #+#             */
-/*   Updated: 2024/04/06 19:23:18 by mapierre         ###   ########.fr       */
+/*   Updated: 2024/04/08 18:34:31 by mapierre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,8 +101,6 @@ int	main(int argc, char *argv[])
 {
 	t_config	*config;
 	t_data		data;
-	int			i;
-	int			j;
 
 	config = ft_calloc(1, sizeof(t_config));
 	if (!config)
@@ -115,45 +113,19 @@ int	main(int argc, char *argv[])
 	parsing_part(config, argv[1]);
 	////////////////////////////////
 	data.config = config;
-	data.player_start_dir = config->map_data->player_start_dir;
-	data.game_map = config->map_data->map;
-	i = 0;
-	while (data.game_map[i])
-	{
-		j = 0;
-		while (data.game_map[i][j])
-		{
-			if (data.game_map[i][j] == data.player_start_dir)
-			{
-				data.pos_y = (double)j + 0.5;
-				data.pos_x = (double)i + 0.5;
-				data.game_map[i][j] = '0';
-				printf(" i = %d j = %d \n", i, j);
-			}
-			j++;
-		}
-		i++;
-	}
-	//print_the_map(config->map_data->map);
+	init_raycast_main(&data);
 	data.mlx = mlx_init();
 	if (!data.mlx)
 	{
+		close(config->map_data->fd);
 		return (1);
 	}
-	init_player_direction(&data);
-	data.move_speed = 0.01;
-	data.rot_speed = 0.01;
-	data.map_witdh = 0;
-	data.map_height = 0;
-	readtab(&data);
-	init_keys(&data);
-	data.win = mlx_new_window(data.mlx, SCREEN_W, SCREEN_H, "eya et marine");
+	init_raycast_all(&data);
 	mlx_hook(data.win, KEYPRESS, (1L << 0), key_press, &data);
 	mlx_hook(data.win, KEYRELEASE, (1L << 1), key_release, &data);
 	mlx_loop_hook(data.mlx, &do_frame, &data);
 	mlx_hook(data.win, 17, 0, &clean_game, &data);
 	mlx_loop(data.mlx);
 	close(config->map_data->fd);
-	//free_config(config);
 	return (0);
 }

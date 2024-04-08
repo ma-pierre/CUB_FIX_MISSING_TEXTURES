@@ -6,9 +6,10 @@
 /*   By: mapierre <mapierre@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/20 01:56:10 by mapierre          #+#    #+#             */
-/*   Updated: 2024/04/06 19:22:11 by mapierre         ###   ########.fr       */
+/*   Updated: 2024/04/08 19:59:22 by mapierre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "cub3D.h"
 
@@ -27,18 +28,36 @@ int	do_frame(t_data *data)
 	return (0);
 }
 
-void draw_wall(t_image image, int x, int y1, int y2, int color)
+void draw_fc(t_image image, int x, int y1, int y2, int color)
 {
-	if (x < 0 || x >= SCREEN_W) return;
-	y1 = (y1 < 0) ? 0 : y1;
-	y2 = (y2 >= SCREEN_H) ? SCREEN_H - 1 : y2;
-
-	while (y1 <= y2)
-	{
-		image_put_px(image, x, y1, color);
-		y1++;
-	}
+    if (x < 0 || x >= SCREEN_W)
+        return;
+    if (y1 < 0)
+        y1 = 0;
+    if (y2 >= SCREEN_H)
+    {
+        y2 = SCREEN_H - 1;
+    }
+    while (y1 <= y2)
+    {
+        image_put_px(image, x, y1, color);
+        y1++;
+    }
 }
+
+
+void draw_wall(t_image image, int x, int y1, int y2, t_texture *tex, int texX)
+{
+    int y = y1;
+    while (y <= y2)
+    {
+        int texY = (((y * 256 - SCREEN_H * 128 + (y2 - y1) * 128) * tex->height) / (y2 - y1)) / 256;
+        unsigned int color = *(unsigned int*)(tex->addr + (texY * tex->line_length + texX * (tex->bpp / 8)));
+        image_put_px(image, x, y, color);
+        y++;
+    }
+}
+
 
 void	raycast_init_var(t_data *d, int x)
 {
@@ -118,10 +137,13 @@ void	main_raycast(t_data *d, t_image win_img)
 	int	line_height;
 	int	draw_start;
 	int	draw_end;
-	int	color;
+	int texX;
+	double wallX;
+	t_texture	*tex;
+
+	tex = NULL;
 
 	x = 0;
-	//d->raycast_var.map_y = 9;
 	while (x < SCREEN_W)
 	{
 		raycast_init_var(d, x);
@@ -133,7 +155,11 @@ void	main_raycast(t_data *d, t_image win_img)
 		else
 			d->raycast_var.perp_wall_disst = (d->raycast_var.map_y - d->pos_y
 					+ (1 - d->raycast_var.step_y) / 2) / d->raycast_var.ray_dir_y;
-		//printf("PERPWALLDIST = %f \n", d->raycast_var.perp_wall_disst);
+		if (side == 0)
+			wallX = d->pos_y + d->raycast_var.perp_wall_disst * d->raycast_var.ray_dir_y;
+		else
+			wallX = d->pos_x + d->raycast_var.perp_wall_disst * d->raycast_var.ray_dir_x;
+		wallX -= floor((wallX));
 		line_height = (int)(SCREEN_H / d->raycast_var.perp_wall_disst);
 		draw_start = -line_height / 2 + SCREEN_H / 2;
 		if (draw_start < 0)
@@ -141,24 +167,13 @@ void	main_raycast(t_data *d, t_image win_img)
 		draw_end = line_height / 2 + SCREEN_H / 2;
 		if (draw_end >= SCREEN_H)
 			draw_end = SCREEN_H - 1;
-
-		if (side == 0)
-		{
-			if (d->raycast_var.step_x > 0)
-				color = 0xFFC0CB; // sud - Rose
-			else
-				color = 0x0000FF; // nord - Bleu
-		} 
-		else
-		{ // Mur horizontal
-		if (d->raycast_var.step_y > 0)
-			color = 0xFF0000; // est - Rouge
-		else
-			color = 0x000000; // ouest - Noir
-		}
-		draw_wall(win_img, x, 0, draw_start, 0xffdfdf);
-		draw_wall(win_img, x, draw_start, draw_end, color);
-		draw_wall(win_img, x, draw_end, SCREEN_H, 0xae84a9);
+		tex = define_texture(d, side);
+		texX = (int)(wallX * (double)tex->width);
+		if (side == 0 && d->raycast_var.ray_dir_x > 0) texX = tex->width - texX - 1;
+		if (side == 1 && d->raycast_var.ray_dir_y < 0) texX = tex->width - texX - 1;
+		draw_fc(win_img, x, 0, draw_start, 0xffdfdf);
+		draw_wall(win_img, x, draw_start, draw_end, tex, texX);
+		draw_fc(win_img, x, draw_end, SCREEN_H, 0xae84a9);
 		x++;
 	}
 }
